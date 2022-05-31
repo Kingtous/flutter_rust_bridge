@@ -15,6 +15,8 @@ pub enum IrTypePrimitive {
     Bool,
     Unit,
     Usize,
+    SyncReturnI32,
+    SyncReturnBool,
 }
 
 impl IrTypeTrait for IrTypePrimitive {
@@ -32,11 +34,12 @@ impl IrTypeTrait for IrTypePrimitive {
             | IrTypePrimitive::I16
             | IrTypePrimitive::U32
             | IrTypePrimitive::I32
+            | IrTypePrimitive::SyncReturnI32
             | IrTypePrimitive::U64
             | IrTypePrimitive::I64
             | IrTypePrimitive::Usize => "int",
             IrTypePrimitive::F32 | IrTypePrimitive::F64 => "double",
-            IrTypePrimitive::Bool => "bool",
+            IrTypePrimitive::Bool | IrTypePrimitive::SyncReturnBool => "bool",
             IrTypePrimitive::Unit => "void",
         }
         .to_string()
@@ -60,12 +63,12 @@ impl IrTypeTrait for IrTypePrimitive {
             IrTypePrimitive::U16 => "u16",
             IrTypePrimitive::I16 => "i16",
             IrTypePrimitive::U32 => "u32",
-            IrTypePrimitive::I32 => "i32",
+            IrTypePrimitive::I32 | IrTypePrimitive::SyncReturnI32 => "i32",
             IrTypePrimitive::U64 => "u64",
             IrTypePrimitive::I64 => "i64",
             IrTypePrimitive::F32 => "f32",
             IrTypePrimitive::F64 => "f64",
-            IrTypePrimitive::Bool => "bool",
+            IrTypePrimitive::Bool | IrTypePrimitive::SyncReturnBool => "bool",
             IrTypePrimitive::Unit => "unit",
             IrTypePrimitive::Usize => "usize",
         }
@@ -79,12 +82,14 @@ impl IrTypePrimitive {
     /// whenever primitives are put behind a pointer.
     pub fn dart_native_type(&self) -> &'static str {
         match self {
-            IrTypePrimitive::U8 | IrTypePrimitive::Bool => "ffi.Uint8",
+            IrTypePrimitive::U8 | IrTypePrimitive::Bool | IrTypePrimitive::SyncReturnBool => {
+                "ffi.Uint8"
+            }
             IrTypePrimitive::I8 => "ffi.Int8",
             IrTypePrimitive::U16 => "ffi.Uint16",
             IrTypePrimitive::I16 => "ffi.Int16",
             IrTypePrimitive::U32 => "ffi.Uint32",
-            IrTypePrimitive::I32 => "ffi.Int32",
+            IrTypePrimitive::I32 | IrTypePrimitive::SyncReturnI32 => "ffi.Int32",
             IrTypePrimitive::U64 => "ffi.Uint64",
             IrTypePrimitive::I64 => "ffi.Int64",
             IrTypePrimitive::F32 => "ffi.Float",

@@ -47,7 +47,7 @@ abstract class FlutterRustBridgeBase<T extends FlutterRustBridgeWireBase> {
 
   /// Similar to [executeNormal], except that this will return synchronously
   @protected
-  Uint8List executeSync(FlutterRustBridgeSyncTask task) {
+  S executeSync<S>(FlutterRustBridgeSyncTask task) {
     final raw = task.callFfi();
 
     final bytes = Uint8List.fromList(raw.ptr.asTypedList(raw.len));
@@ -56,7 +56,21 @@ abstract class FlutterRustBridgeBase<T extends FlutterRustBridgeWireBase> {
     inner.free_WireSyncReturnStruct(raw);
 
     if (success) {
-      return bytes;
+      if (S == String) {
+        return utf8.decode(bytes) as S;
+      } else if (S == int) {
+        var byteData = ByteData.view(bytes.buffer);
+        return byteData.getInt32(0, Endian.big) as S;
+      } else if (S == bool) {
+        var byteData = ByteData.view(bytes.buffer);
+        if (byteData.getUint8(0) == 1) {
+          return true as S;
+        } else {
+          return false as S;
+        }
+      } else {
+        return bytes as S;
+      }
     } else {
       throw FfiException('EXECUTE_SYNC', utf8.decode(bytes), null);
     }

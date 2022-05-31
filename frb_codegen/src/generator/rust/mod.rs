@@ -262,6 +262,39 @@ impl Generator {
 
         let code_call_inner_func = TypeRustGenerator::new(func.output.clone(), ir_file)
             .wrap_obj(format!("{}({})", func.name, inner_func_params.join(", ")));
+
+        // If it's sync code, we turn the return value into Vec<u8>
+        let code_call_inner_func = match func.mode {
+            IrFuncMode::Sync => match func.output.clone() {
+                IrType::Primitive(prim) => match prim {
+                    IrTypePrimitive::SyncReturnBool => {
+                        format!(
+                            "SyncReturn(({}.0 as u8).to_be_bytes().to_vec())",
+                            code_call_inner_func
+                        )
+                    }
+                    IrTypePrimitive::SyncReturnI32 => {
+                        format!(
+                            "SyncReturn({}.0.to_be_bytes().to_vec())",
+                            code_call_inner_func
+                        )
+                    }
+                    _ => code_call_inner_func,
+                },
+                IrType::Delegate(del) => match del {
+                    IrTypeDelegate::SyncReturnString => {
+                        format!(
+                            "SyncReturn(Vec::from({}.0.as_bytes()))",
+                            code_call_inner_func
+                        )
+                    }
+                    _ => code_call_inner_func,
+                },
+                _ => code_call_inner_func,
+            },
+            _ => code_call_inner_func,
+        };
+
         let code_call_inner_func_result = if func.fallible {
             code_call_inner_func
         } else {

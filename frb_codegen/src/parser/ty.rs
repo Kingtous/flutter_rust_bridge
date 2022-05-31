@@ -187,6 +187,20 @@ impl<'a> TypeParser<'a> {
                             }
                             _ => None,
                         },
+                        SupportedInnerType::Path(SupportedPathType {
+                            ident,
+                            generic: None,
+                        }) => {
+                            if ident == "String" {
+                                Some(IrType::Delegate(IrTypeDelegate::SyncReturnString))
+                            } else if ident == "i32" {
+                                Some(IrType::Primitive(IrTypePrimitive::SyncReturnI32))
+                            } else if ident == "bool" {
+                                Some(IrType::Primitive(IrTypePrimitive::SyncReturnBool))
+                            } else {
+                                None
+                            }
+                        }
                         _ => None,
                     }
                 }

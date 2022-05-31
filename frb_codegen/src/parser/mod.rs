@@ -166,7 +166,15 @@ impl<'a> Parser<'a> {
                 }
             });
             mode = Some(
-                if let Some(IrType::Delegate(IrTypeDelegate::SyncReturnVecU8)) = output {
+                if let Some(
+                    IrType::Delegate(
+                        IrTypeDelegate::SyncReturnVecU8 | IrTypeDelegate::SyncReturnString,
+                    )
+                    | IrType::Primitive(
+                        IrTypePrimitive::SyncReturnBool | IrTypePrimitive::SyncReturnI32,
+                    ),
+                ) = output
+                {
                     IrFuncMode::Sync
                 } else {
                     IrFuncMode::Normal
