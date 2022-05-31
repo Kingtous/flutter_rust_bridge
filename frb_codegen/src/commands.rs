@@ -247,12 +247,12 @@ pub fn build_runner(dart_root: &str) -> Result {
     info!("Running build_runner at {}", dart_root);
     let out = if cfg!(windows) {
         call_shell(&format!(
-            "cd \"{}\"; dart run build_runner build --delete-conflicting-outputs",
+            "cd \"{}\"; flutter pub run build_runner build --delete-conflicting-outputs",
             dart_root
         ))
     } else {
         call_shell(&format!(
-            "cd \"{}\" && dart run build_runner build --delete-conflicting-outputs",
+            "cd \"{}\" && flutter pub run build_runner build --delete-conflicting-outputs",
             dart_root
         ))
     };
